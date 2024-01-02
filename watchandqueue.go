@@ -14,10 +14,14 @@ import (
 var (
 	count           int
 	monitored_files sync.Map
-	PollInterval    = 3
+	pollInterval    = 3
 )
 
-func watchForIncomingFiles(ctx context.Context, watchDirectory, extension string, c chan<- string) error {
+func SetPollInterval(interval int) {
+	pollInterval = interval
+}
+
+func WatchForIncomingFiles(ctx context.Context, watchDirectory, extension string, c chan<- string) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
@@ -96,7 +100,7 @@ func waitForUploadToFinish(file string) error {
 		monitored_files.Delete(file)
 	}()
 	for {
-		time.Sleep(time.Duration(PollInterval) * time.Second)
+		time.Sleep(time.Duration(pollInterval) * time.Second)
 		fi, err := os.Stat(file)
 		if err != nil {
 			return err
