@@ -22,6 +22,9 @@ func SetPollInterval(interval int) {
 }
 
 func WatchForIncomingFiles(ctx context.Context, watchDirectory, extension string, c chan<- string) error {
+	if !strings.HasPrefix(extension, ".") {
+		extension = "." + extension
+	}
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
@@ -54,7 +57,7 @@ func WatchForIncomingFiles(ctx context.Context, watchDirectory, extension string
 						count++
 					}
 					go func() {
-						if strings.HasSuffix(strings.ToLower(event.Name), ".mkv") {
+						if strings.HasSuffix(strings.ToLower(event.Name), extension) {
 							log.Printf("A new file is being written: %v\n", event.Name)
 							err := waitForUploadToFinish(event.Name)
 							if err != nil {
