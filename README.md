@@ -21,3 +21,7 @@ When a file is written in the folder of your choosing, a string containing the f
 	}
 
 ```
+
+This was cobbled together really quickly to solve a problem I had. 
+It works and does the job it has to do for me. YMMV. 
+Improvements are definitely possible and are encouraged, but for me personally this is fine the way it is now.
