@@ -96,9 +96,8 @@ func WatchForIncomingFiles(ctx context.Context, watchDirectory, extension string
 	return nil
 }
 
-// This is a bit of a naive way of checking if the file is done writing.
-// Yet it works quite well in practice for me. Then again, I have quite
-// reliable internet, so that helps. So this can certainly be improved.
+// This is a bit of a naive/clumsy way of checking if the file is done writing.
+// Yet it works quite well in practice for me, but this can certainly be improved.
 func waitForUploadToFinish(file string) error {
 	var size int64
 	size = 0
