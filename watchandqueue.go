@@ -15,6 +15,7 @@ var (
 	count           int
 	monitored_files sync.Map
 	pollInterval    = 3
+	Verbose         = false
 )
 
 func SetPollInterval(interval int) {
@@ -50,7 +51,9 @@ func WatchForIncomingFiles(ctx context.Context, watchDirectory, extension string
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					if _, ok := monitored_files.Load(event.Name); ok {
 						// already watching this file
-						log.Printf("Already watching %v\n", event.Name)
+						if Verbose {
+							log.Printf("Already watching %v\n", event.Name)
+						}
 						continue
 					} else {
 						monitored_files.Store(event.Name, true)
@@ -58,7 +61,9 @@ func WatchForIncomingFiles(ctx context.Context, watchDirectory, extension string
 					}
 					go func() {
 						if strings.HasSuffix(strings.ToLower(event.Name), extension) {
-							log.Printf("A new file is being written: %v\n", event.Name)
+							if Verbose {
+								log.Printf("A new file is being written: %v\n", event.Name)
+							}
 							err := waitForUploadToFinish(event.Name)
 							if err != nil {
 								log.Println(err)
@@ -80,8 +85,9 @@ func WatchForIncomingFiles(ctx context.Context, watchDirectory, extension string
 
 		}
 	}(ctx)
-
-	log.Printf("Watching directory %v for incoming .mkv files.\n", dir)
+	if Verbose {
+		log.Printf("Watching directory %v for incoming .mkv files.\n", dir)
+	}
 	err = watcher.Add(dir)
 	if err != nil {
 		log.Fatal(err)
@@ -91,13 +97,15 @@ func WatchForIncomingFiles(ctx context.Context, watchDirectory, extension string
 }
 
 // This is a bit of a naive way of checking if the file is done writing.
-// Yet it works quite well in practise for me. Then again, I have quite
+// Yet it works quite well in practice for me. Then again, I have quite
 // reliable internet, so that helps. So this can certainly be improved.
 func waitForUploadToFinish(file string) error {
 	var size int64
 	size = 0
 	sameSizeCount := 0
-	log.Printf("Waiting for write operations to stop on %v\n", file)
+	if Verbose {
+		log.Printf("Waiting for write operations to stop on %v\n", file)
+	}
 	defer func() {
 		count--
 		monitored_files.Delete(file)

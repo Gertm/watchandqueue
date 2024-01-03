@@ -2,6 +2,7 @@ package watchandqueue
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"testing"
 )
@@ -68,7 +69,15 @@ func Test_waitForUploadToFinish(t *testing.T) {
 
 func Test_RunWatchForIncomingFiles(t *testing.T) {
 	ctx := context.Background()
-	err := WatchForIncomingFiles(ctx, "/tmp", ".mkv")
+	c := make(chan string, 5)
+	go func() {
+		for {
+			file := <-c
+			fmt.Println("Got:", file)
+		}
+	}()
+	fmt.Println("Starting file watcher")
+	err := WatchForIncomingFiles(ctx, "/tmp", ".mkv", c)
 	if err != nil {
 		log.Println(err)
 	}
