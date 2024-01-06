@@ -2,6 +2,7 @@ package watchandqueue
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -28,7 +29,7 @@ func WatchForIncomingFiles(ctx context.Context, watchDirectory, extension string
 	}
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("Cannot create watcher: %w", err)
 	}
 	defer watcher.Close()
 
@@ -90,7 +91,7 @@ func WatchForIncomingFiles(ctx context.Context, watchDirectory, extension string
 	}
 	err = watcher.Add(dir)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("Cannot add watcher: %w", err)
 	}
 	<-done
 	return nil
